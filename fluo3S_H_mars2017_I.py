@@ -13,9 +13,8 @@ from scipy.misc import factorial
 ##### STRUCTURE DU PROGRAMME #####
 # 1. Définition des bases et matrices de passage
 # 2. Définition des hamiltoniens
-# 3. Résolution des équations de Bloch optiques pour chaque sous-niveau
-# 4. Calcul de la forme de raie finale et enregistrement des valeurs
-# 5. Ajustement par une lorentzienne et enregistrement des valeurs
+# 3. Calcul de la forme de raie
+# 4. Ajustement, enregistrement, affichage
 
 
 ##### 1. Définition des bases et matrices de passage

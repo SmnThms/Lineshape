@@ -12,9 +12,8 @@ import numpy as np
 ##### STRUCTURE DU PROGRAMME #####
 # 1. Définition des bases et matrices de passage
 # 2. Définition des hamiltoniens
-# 3. Résolution des équations de Bloch optiques pour chaque sous-niveau
-# 4. Calcul de la forme de raie finale et enregistrement des valeurs
-# 5. Ajustement par une lorentzienne et enregistrement des valeurs
+# 3. Calcul de la forme de raie
+# 4. Ajustement, enregistrement, affichage
 
 
 ##### 2. Définition des hamiltoniens
@@ -38,6 +37,13 @@ def H_HFS_P(n=3): # dans la base LJFmF
     H[11,11] = L3 + A3s/12                                # P1/2_1
     H[2,8] = H[4,9] = H[6,11] = -np.sqrt(2)/48*A3s        # couplage
     H[8,2] = H[9,4] = H[11,6] = -np.sqrt(2)/48*A3s        # couplage
+    return H
+    
+def H_HFS():
+    H = np.zeros((20,20))
+    H[:4,:4] = H_HFS_S(n=1)
+    H[4:8,4:8] = H_HFS_S(n=3)
+    H[8:20,8:20] = H_HFS_P()
     return H
 
 # Constantes :
@@ -63,13 +69,19 @@ def H_Zeeman_P(B,n=3): # dans la base LmSmLmI, pour n = 3
     MJ = 0.5*mub*B*g3p      # c3ps
     ML = mub*B*(1-epmr)     # coefflz
     MI = -0.5*mub*B*gn*epmr # coeffiz
-    diam = -360*coef_diamagnetique*B*B 
+    diam = -360*coef_diamagnetique*B**2
     H = MJ*np.diag([1,1,1,-1,1,1,-1,-1,1,-1,-1,-1])  # Szp
     H += ML*np.diag([1,1,0,1,0,-1,1,0,-1,0,-1,-1])   # Lzp
     H += diam*np.diag([2,2,1,2,1,2,2,1,2,1,2,2])     # Lzp
     H += MI*np.diag([1,-1,1,1,-1,1,-1,1,-1,-1,1,-1]) # Izp
     return H
    
+def H_Zeeman(B):
+    H = np.zeros((20,20))
+    H[:4,:4] = H_Zeeman_S(B,n=1)
+    H[4:8,4:8] = H_Zeeman_S(B,n=3)
+    H[8:20,8:20] = H_Zeeman_P(B)
+    return H
    
-   
-#def H_Stark():
+def H_Stark_reduit():
+    return 0
