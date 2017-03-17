@@ -56,8 +56,13 @@ def fit_B(liste_B,sigma,vo): # sens concaténation ?
 def lorentz(x,x0,S,gamma):
     return S/(1+((x-x0)/(gamma/2))**2)
     
-def test(M):
-    plt.close()
-    plt.imshow(M, interpolation='nearest')
-    plt.colorbar()
-    plt.title('max = '+str(np.max(M)))
+def test(M,fig=0):
+    if np.max(M)<1E-12:
+        print 'Matrice nulle'
+    else:
+        if fig is 0:
+            plt.close('all')
+        else:
+            plt.figure(fig)
+        plt.imshow(M, interpolation='nearest',cmap=plt.jet())
+        plt.colorbar()

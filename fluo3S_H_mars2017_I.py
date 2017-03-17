@@ -26,6 +26,10 @@ class Niveau:
 
 def LmSmLmI():
     LmSmLmI = []
+    LmSmLmI.append(Niveau( n=3, L=0, mS=1/2,  mL=0,  mI=1/2,  S=1/2 ))
+    LmSmLmI.append(Niveau( n=3, L=0, mS=1/2,  mL=0,  mI=-1/2, S=1/2 ))
+    LmSmLmI.append(Niveau( n=3, L=0, mS=-1/2, mL=0,  mI=1/2,  S=1/2 ))
+    LmSmLmI.append(Niveau( n=3, L=0, mS=-1/2, mL=0,  mI=-1/2, S=1/2 ))
     LmSmLmI.append(Niveau( n=3, L=1, mS=1/2,  mL=1,  mI=1/2,  S=1/2 ))
     LmSmLmI.append(Niveau( n=3, L=1, mS=1/2,  mL=1,  mI=-1/2, S=1/2 ))
     LmSmLmI.append(Niveau( n=3, L=1, mS=1/2,  mL=0,  mI=1/2,  S=1/2 ))
@@ -38,14 +42,14 @@ def LmSmLmI():
     LmSmLmI.append(Niveau( n=3, L=1, mS=-1/2, mL=0,  mI=-1/2, S=1/2 ))
     LmSmLmI.append(Niveau( n=3, L=1, mS=-1/2, mL=-1, mI=1/2,  S=1/2 ))
     LmSmLmI.append(Niveau( n=3, L=1, mS=-1/2, mL=-1, mI=-1/2, S=1/2 ))
-    LmSmLmI.append(Niveau( n=3, L=0, mS=1/2,  mL=0,  mI=1/2,  S=1/2 ))
-    LmSmLmI.append(Niveau( n=3, L=0, mS=1/2,  mL=0,  mI=-1/2, S=1/2 ))
-    LmSmLmI.append(Niveau( n=3, L=0, mS=-1/2, mL=0,  mI=1/2,  S=1/2 ))
-    LmSmLmI.append(Niveau( n=3, L=0, mS=-1/2, mL=0,  mI=-1/2, S=1/2 ))
     return LmSmLmI
 
 def LJmJmI():
     LJmJmI = []
+    LJmJmI.append(Niveau( n=3, L=0, J=1/2, mJ=1/2,  mI=1/2,  I=1/2 ))
+    LJmJmI.append(Niveau( n=3, L=0, J=1/2, mJ=1/2,  mI=-1/2, I=1/2 ))
+    LJmJmI.append(Niveau( n=3, L=0, J=1/2, mJ=-1/2, mI=1/2,  I=1/2 ))
+    LJmJmI.append(Niveau( n=3, L=0, J=1/2, mJ=-1/2, mI=-1/2, I=1/2 ))
     LJmJmI.append(Niveau( n=3, L=1, J=3/2, mJ=3/2,  mI=1/2,  I=1/2 ))
     LJmJmI.append(Niveau( n=3, L=1, J=3/2, mJ=3/2,  mI=-1/2, I=1/2 ))
     LJmJmI.append(Niveau( n=3, L=1, J=3/2, mJ=1/2,  mI=1/2,  I=1/2 ))
@@ -58,14 +62,14 @@ def LJmJmI():
     LJmJmI.append(Niveau( n=3, L=1, J=1/2, mJ=1/2,  mI=-1/2, I=1/2 ))
     LJmJmI.append(Niveau( n=3, L=1, J=1/2, mJ=-1/2, mI=1/2,  I=1/2 ))
     LJmJmI.append(Niveau( n=3, L=1, J=1/2, mJ=-1/2, mI=-1/2, I=1/2 ))
-    LJmJmI.append(Niveau( n=3, L=0, J=1/2, mJ=1/2,  mI=1/2,  I=1/2 ))
-    LJmJmI.append(Niveau( n=3, L=0, J=1/2, mJ=1/2,  mI=-1/2, I=1/2 ))
-    LJmJmI.append(Niveau( n=3, L=0, J=1/2, mJ=-1/2, mI=1/2,  I=1/2 ))
-    LJmJmI.append(Niveau( n=3, L=0, J=1/2, mJ=-1/2, mI=-1/2, I=1/2 ))
     return LJmJmI
     
 def LJFmF():    
     LJFmF = []
+    LJFmF.append(Niveau( n=3, L=0, J=1/2, F=1, mF=1  ))
+    LJFmF.append(Niveau( n=3, L=0, J=1/2, F=1, mF=0  ))
+    LJFmF.append(Niveau( n=3, L=0, J=1/2, F=0, mF=0  ))
+    LJFmF.append(Niveau( n=3, L=0, J=1/2, F=1, mF=-1 ))
     LJFmF.append(Niveau( n=3, L=1, J=3/2, F=2, mF=2  ))
     LJFmF.append(Niveau( n=3, L=1, J=3/2, F=2, mF=1  ))
     LJFmF.append(Niveau( n=3, L=1, J=3/2, F=1, mF=1  ))
@@ -78,10 +82,6 @@ def LJFmF():
     LJFmF.append(Niveau( n=3, L=1, J=1/2, F=1, mF=0  ))
     LJFmF.append(Niveau( n=3, L=1, J=1/2, F=0, mF=0  ))
     LJFmF.append(Niveau( n=3, L=1, J=1/2, F=1, mF=-1 ))
-    LJFmF.append(Niveau( n=3, L=0, J=1/2, F=1, mF=1  ))
-    LJFmF.append(Niveau( n=3, L=0, J=1/2, F=1, mF=0  ))
-    LJFmF.append(Niveau( n=3, L=0, J=1/2, F=0, mF=0  ))
-    LJFmF.append(Niveau( n=3, L=0, J=1/2, F=1, mF=-1 ))
     return LJFmF
 
 
@@ -99,7 +99,7 @@ def LSI_vers_LJI():
                 P[n,m] = 0 # Parce qu'on doit avoir les memes mI et L pour les deux bases
             else:
                 P[n,m] = clebsch(j1=d.L,m1=d.mL,j2=d.S,m2=d.mS,J=a.J,M=a.mJ)
-    return Passage('LmSmLmI','LJmJmI',P[-4:,-4:],P)
+    return Passage('LmSmLmI','LJmJmI',P[:4,:4],P)
             
 def LJI_vers_LJF():
     P = np.zeros((16,16))
@@ -109,12 +109,18 @@ def LJI_vers_LJF():
                 P[n,m] = 0 # Parce qu'on doit avoir les mêmes J et L pour les deux bases
             else:
                 P[n,m] = clebsch(j1=d.J,m1=d.mJ,j2=d.I,m2=d.mI,J=a.F,M=a.mF)
-    return Passage('LJmJmI','LJFmF',P[-4:,-4:],P)
+    return Passage('LJmJmI','LJFmF',P[:4,:4],P)
     
 def clebsch(j1,m1,j2,m2,J,M):
     return (-1)**(j1-j2+M)*np.sqrt(2*J+1)*wigner3j(j1,j2,J,m1,m2,-M)
     
 def wigner3j(j1,j2,j3,m1,m2,m3):
+    if m1+m2+m3!=0:
+        return 0
+    if j1-m1!=np.floor(j1-m1) or j2-m2!=np.floor(j2-m2) or j3-m3!=np.floor(j3-m3):
+        return 0
+    if j3>j1+j2 or j3<abs(j1-j2):
+        return 0
     t1 = j2 - m1 - j3
     t2 = j1 + m2 - j3
     t3 = j1 + j2 - j3
@@ -127,4 +133,3 @@ def wigner3j(j1,j2,j3,m1,m2,m3):
     for t in tvec:
         wigner += (-1)**t / ( factorial(t) * factorial(t-t1) * factorial(t-t2) * factorial(t3-t) * factorial(t4-t) * factorial(t5-t) )
     return wigner * (-1)**(j1-j2-m3) * np.sqrt( factorial(j1+j2-j3) * factorial(j1-j2+j3) * factorial(-j1+j2+j3) / factorial(j1+j2+j3+1) * factorial(j1+m1) * factorial(j1-m1) * factorial(j2+m2) * factorial(j2-m2) * factorial(j3+m3) * factorial(j3-m3) )
-    

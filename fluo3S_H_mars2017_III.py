@@ -28,15 +28,7 @@ import math
 c = 299792.458  # en km/s
 nu0 = 2922742937 # en Mhz
 
-# Description du système par sa matrice densité (20x20)
-# Hamiltonien total
-#     = H0 (avec HFS, Zeeman et diamagnétisme) 
-#     + H1 (interaction dipolaire avec le laser)
-#     + H_Stark (effet Stark motionnel en présence de champ B)
-
 def forme_de_raie(B,sigma,vo=0):
-    debut = time.time()
-
     # On se place dans la base des vecteurs propres de H0
     H0 = H_HFS().additionner(H_Zeeman(B).convert(LSI_vers_LJI()).convert(LJI_vers_LJF()))
     H0.diagonalise()
@@ -45,10 +37,10 @@ def forme_de_raie(B,sigma,vo=0):
     coef_Stark = H_FS().convert(LJI_vers_LJF()).convert(H0.LJF_vers_baseH0)
         
     frequences = np.linspace(-5,5,1001) # en MHz
-    vitesses = np.linspace(0.01,10.,101)    # en km/s
+    vitesses = np.linspace(0.01,10.,101)    # en km/s, et v doit être != 0
+    Norm = quad(lambda x:coefv(x,sigma,vo),0.,10.)[0] 
     hfs = range(3) # [mF=-1, mF=0, mF=1]
     fluo_v, fluo = [[0]*len(vitesses)]*len(hfs), np.zeros(len(frequences))
-    Norm = quad(lambda x:coefv(x,sigma,vo),0.,10.)[0] 
     for i,delta in enumerate(frequences):
         for j,v in enumerate(vitesses):
             H_Stark = coef_Stark.multiplier(v*B/1000)
@@ -67,12 +59,7 @@ def forme_de_raie(B,sigma,vo=0):
                 pop3S = num/den
                 pop3P = np.sum((CC-pop3S*BB)/(gamma3P-BB))
                 fluo_v[k][j] = coefv(v,sigma,vo)*(gamma3S*pop3S + 0.11834*gamma3P*pop3P)
-                if math.isnan(fluo_v[k][j]):
-                    print 'k='+str(k)+' j='+str(j)
-#        a = quad(interp1d(vitesses,fluo_v[k],kind='cubic'),0,10.)[0]/Norm
         fluo[i] = np.sum([quad(interp1d(vitesses,fluo_v[k],kind='cubic'),0.01,10.)[0]/Norm for k in hfs])
-    fin = time.time()
-    print fin-debut
     return fluo
     
     

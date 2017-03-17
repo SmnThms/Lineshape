@@ -20,43 +20,35 @@ from fluo3S_H_mars2017_I import *
 ##### 2. Définition des hamiltoniens
 
 class Hamiltonien:
-    def __init__(self,H1S,H3S3P,base):
+    def __init__(self,base,H1S,H3S3P):
         self.base = base
-        self.H1S = H1S
-        self.H3S3P = H3S3P
-        self.H3S = self.H3S3P[-4:,-4:] # ?
-        self.H3P = self.H3S3P[:-4,:-4] # ?
+        self.H1S, self.H3S3P = H1S, H3S3P
     
     def convert(self,P):
         if self.base is not P.base_depart:
             return False
         H1S_conv = np.dot(P.M1S,np.dot(self.H1S,P.M1S.transpose()))
         H3S3P_conv = np.dot(P.M3S3P,np.dot(self.H3S3P,P.M3S3P.transpose()))
-        return Hamiltonien(H1S_conv,H3S3P_conv,P.base_arrivee)
+        return Hamiltonien(P.base_arrivee,H1S_conv,H3S3P_conv)
         
     def diagonalise(self):
         self.base = 'base H0'
         self.E1S, self.M1S = np.linalg.eig(self.H1S)
         self.H1S = np.diag(self.E1S)
-        self.E3S3P, self.M3S3P = np.linalg.eig(self.H3S3P)
-        self.E3S3P = np.dot(rearranger(),self.E3S3P)
-        self.M3S3P = np.dot(rearranger(),np.dot(self.M3S3P,rearranger()))
-        self.H3S3P = np.diag(self.E3S3P)
-        self.H3S = self.H3S3P[:4,:4] # ?
-        self.H3P = self.H3S3P[4:,4:] # ?
-        self.E3S = self.E3S3P[:4] # ?
-        self.E3P = self.E3S3P[4:] # ?
-        self.LJF_vers_baseH0 = Passage('LJFmF',self.base,self.M1S,self.M3S3P) # ou .transpose() ?
-
-        
+        self.E3S, self.M3S = np.linalg.eig(self.H3S3P[:4,:4])
+        self.E3P, self.M3P = np.linalg.eig(self.H3S3P[4:,4:])
+        self.M3S3P = np.zeros((16,16))
+        self.M3S3P[:4,:4] = self.M3S
+        self.M3S3P[4:,4:] = self.M3P
+        self.LJF_vers_baseH0 = Passage('LJFmF',self.base,self.M1S.transpose(),self.M3S3P.transpose())     
         
     def additionner(self,H_ajoute):
         if self.base is not H_ajoute.base:
             return False
-        return Hamiltonien(self.H1S + H_ajoute.H1S,self.H3S3P + H_ajoute.H3S3P,self.base)
+        return Hamiltonien(self.base,self.H1S + H_ajoute.H1S,self.H3S3P + H_ajoute.H3S3P)
         
     def multiplier(self,v):
-        return Hamiltonien(self.H1S*v,self.H3S3P*v,self.base)
+        return Hamiltonien(self.base,self.H1S*v,self.H3S3P*v)
         
         
 def H_HFS(): # dans la base LJFmF
@@ -79,7 +71,7 @@ def H_HFS(): # dans la base LJFmF
     H3S3P = np.zeros((16,16))
     H3S3P[:4,:4] = H3S
     H3S3P[4:,4:] = H3P
-    return Hamiltonien(H1S,H3S3P,base)    
+    return Hamiltonien(base,H1S,H3S3P)    
     
     
 def H_Zeeman(B): # dans la base LmSmLmI
@@ -94,12 +86,12 @@ def H_Zeeman(B): # dans la base LmSmLmI
     g_1S = 2.00228377       # facteur de Landé (à vérifier)
     MJ_1S = 0.5*mub*B*g_1S  # c1ss
     diam_1S = -2*coef_diamagnetique*B*B
-    H1S = MJ_1S*np.diag([1,1,-1,-1]) + MI*np.diag([1,1,1,1]) + diam_1S*np.diag([1,-1,1,-1])
+    H1S = MJ_1S*np.diag([1,1,-1,-1]) + diam_1S*np.diag([1,1,1,1]) + MI*np.diag([1,-1,1,-1])
     # 3S
     g_3S = 2.0023152    
     MJ_3S = 0.5*mub*B*g_3S  # c3ss
     diam_3S = -138*coef_diamagnetique*B*B 
-    H3S = MJ_3S*np.diag([1,1,-1,-1]) + MI*np.diag([1,1,1,1]) + diam_3S*np.diag([1,-1,1,-1])
+    H3S = MJ_3S*np.diag([1,1,-1,-1]) + diam_3S*np.diag([1,1,1,1]) + MI*np.diag([1,-1,1,-1])
     # 3P
     g_3P = 2.0023152        
     MJ_3P = 0.5*mub*B*g_3P  # c3ps
@@ -111,7 +103,7 @@ def H_Zeeman(B): # dans la base LmSmLmI
     H3S3P = np.zeros((16,16))
     H3S3P[:4,:4] = H3S
     H3S3P[4:,4:] = H3P
-    return Hamiltonien(H1S,H3S3P,base) 
+    return Hamiltonien(base,H1S,H3S3P) 
     
    
 def H_FS(): # dans la base LJmJmI
@@ -132,7 +124,7 @@ def H_FS(): # dans la base LJmJmI
     H3S3P[:12,15] = H3S3P[15,:12]
     # Partie radiale R/a0 
     H3S3P *= 1.279544928*9*np.sqrt(2)
-    return Hamiltonien(H1S,H3S3P,base)
+    return Hamiltonien(base,H1S,H3S3P)
     
 def rearranger():
     R = np.zeros((16,16))
