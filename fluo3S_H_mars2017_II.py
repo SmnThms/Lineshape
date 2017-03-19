@@ -35,11 +35,13 @@ class Hamiltonien:
         self.base = 'base H0'
         self.E1S, self.M1S = np.linalg.eig(self.H1S)
         self.H1S = np.diag(self.E1S)
-        self.E3S, self.M3S = np.linalg.eig(self.H3S3P[:4,:4])
-        self.E3P, self.M3P = np.linalg.eig(self.H3S3P[4:,4:])
+        self.E3S, self.M3S = np.linalg.eig(self.H3S3P[-4:,-4:])
+        self.E3P, self.M3P = np.linalg.eig(self.H3S3P[:-4,:-4])
+        self.H3S3P[-4:,-4:] = np.diag(self.E3S)
+        self.H3S3P[:-4,:-4] = np.diag(self.E3P)
         self.M3S3P = np.zeros((16,16))
-        self.M3S3P[:4,:4] = self.M3S
-        self.M3S3P[4:,4:] = self.M3P
+        self.M3S3P[-4:,-4:] = self.M3S
+        self.M3S3P[:-4,:-4] = self.M3P
         self.LJF_vers_baseH0 = Passage('LJFmF',self.base,self.M1S.transpose(),self.M3S3P.transpose())     
         
     def additionner(self,H_ajoute):
@@ -69,8 +71,8 @@ def H_HFS(): # dans la base LJFmF
     H3P[2,8] = H3P[4,9] = H3P[6,11] = -np.sqrt(2)/48*A3s    # couplage
     H3P[8,2] = H3P[9,4] = H3P[11,6] = -np.sqrt(2)/48*A3s    # couplage
     H3S3P = np.zeros((16,16))
-    H3S3P[:4,:4] = H3S
-    H3S3P[4:,4:] = H3P
+    H3S3P[-4:,-4:] = H3S
+    H3S3P[:-4,:-4] = H3P
     return Hamiltonien(base,H1S,H3S3P)    
     
     
@@ -97,12 +99,12 @@ def H_Zeeman(B): # dans la base LmSmLmI
     MJ_3P = 0.5*mub*B*g_3P  # c3ps
     diam_3P = -360*coef_diamagnetique*B**2
     H3P = MJ_3P*np.diag([1,1,1,-1,1,1,-1,-1,1,-1,-1,-1])  # Szp
-    H3P += ML*np.diag([1,1,0,1,0,-1,1,0,-1,0,-1,-1])   # Lzp
+    H3P += ML*np.diag([1,1,0,1,0,-1,1,0,-1,0,-1,-1])      # Lzp
     H3P += diam_3P*np.diag([2,2,1,2,1,2,2,1,2,1,2,2])     # Lzp
-    H3P += MI*np.diag([1,-1,1,1,-1,1,-1,1,-1,-1,1,-1]) # Izp
+    H3P += MI*np.diag([1,-1,1,1,-1,1,-1,1,-1,-1,1,-1])    # Izp
     H3S3P = np.zeros((16,16))
-    H3S3P[:4,:4] = H3S
-    H3S3P[4:,4:] = H3P
+    H3S3P[-4:,-4:] = H3S
+    H3S3P[:-4,:-4] = H3P
     return Hamiltonien(base,H1S,H3S3P) 
     
    
@@ -125,10 +127,3 @@ def H_FS(): # dans la base LJmJmI
     # Partie radiale R/a0 
     H3S3P *= 1.279544928*9*np.sqrt(2)
     return Hamiltonien(base,H1S,H3S3P)
-    
-def rearranger():
-    R = np.zeros((16,16))
-    R[0:4,6:10] = np.diag(np.ones(4))
-    R[4:10,0:6] = np.diag(np.ones(6))
-    R[10:16,10:16] = np.diag(np.ones(6))
-    return R

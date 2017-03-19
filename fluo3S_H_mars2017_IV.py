@@ -10,6 +10,7 @@ import numpy as np
 from fluo3S_H_mars2017_III import *
 from scipy.optimize import curve_fit
 from matplotlib import pyplot as plt
+import datetime
 
 
 ##### STRUCTURE DU PROGRAMME #####
@@ -25,8 +26,8 @@ class raie():
         self.B = B
         self.sigma = sigma        
         self.vo = vo
-        self.array = forme_de_raie(B,sigma,vo)
-        self.date = str(14-03-17)
+        self.frequences,self.fluo = forme_de_raie(B,sigma,vo)
+        self.date = datetime.date.today().isoformat()
         self.resonance = self.ajuster()[0]
         
     def ajuster(self):
@@ -37,13 +38,13 @@ class raie():
         nom = 'fluo3S_H_'+self.date+'_'+str(self.B)+'_'+str(self.sigma)+'_'+str(self.vo)+'.txt'   
         header = ''
         np.savetxt(nom,self.array,header=header,fmt='%10.2f')
+        return self
         
     def afficher(self):
         plt.plot()
         plt.xlabel('Fréquence (MHz)')
         plt.title('B = '+str(self.B)+', sigma = '+str(self.sigma)+' et vo = '+str(self.vo))
-        
-    
+        return self    
 
 def fit_B(liste_B,sigma,vo): # sens concaténation ?
     parametres = np.array([raie(B,sigma,vo).ajuster() for B in liste_B])
