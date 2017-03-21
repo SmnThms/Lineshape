@@ -12,6 +12,7 @@ from fluo3S_H_mars2017_II import *
 from scipy.integrate import quad
 from scipy.interpolate import interp1d
 from scipy.special import erf
+import time
 
 ##### STRUCTURE DU PROGRAMME #####
 # 1. Définition des bases et matrices de passage
@@ -25,24 +26,29 @@ c = 299792.458  # en km/s
 nu0 = 2922742937 # en Mhz
 
 def forme_de_raie(B,sigma,vo=0):
-    # On se place dans la base des vecteurs propres de H0
-    H0 = H_HFS().additionner(H_Zeeman(B).convert(LSI_vers_LJI()) \
-                .convert(LJI_vers_LJF()))
-    H0.diagonalise()
-    H0_B0 = H_HFS().additionner(H_Zeeman(0.0015).convert(LSI_vers_LJI()) \
-                .convert(LJI_vers_LJF()))
-    H0_B0.diagonalise()
+    debut = time.time()
+    if B < 30:
+        H0 = H_HFS() # On est dans la base 'LJFmF'
+        H0.diagonalise()
+        H0_B0 = H0
+        hfs = [1,3] # [mF=-1, mF=1]
+    else:
+        H0 = H_HFS().additionner(H_Zeeman(B).convert(LSI_vers_LJI()) \
+                    .convert(LJI_vers_LJF()))
+        H0.diagonalise() # On se place dans la base propre de H0
+        H0_B0 = H_HFS().additionner(H_Zeeman(0.0015).convert(LSI_vers_LJI()) \
+                    .convert(LJI_vers_LJF())) 
+        # B0=0.0015 > 0, pour une diagonalisation dans le même ordre que H0
+        H0_B0.diagonalise()
+        hfs = [1,2,3] # [mF=0, mF=1, mF=-1]
     H_Stark_sur_vB = H_FS().convert(LJI_vers_LJF()).convert(H0.LJF_vers_baseH0)
     gamma3S = 1.004945452       # en MHz
     gamma3P = 30.192            # en MHz
-    # Calcul des populations du système
     frequences = np.linspace(-5,5,1001)   # en MHz
     vitesses = np.linspace(0.1,10.1,101)  # en km/s (v doit être non nul)
-    frequences = [0.]
-    vitesses = [0.1,5.1]
     normalisation = quad(lambda x:coefv(x,sigma,vo),0.1,10.1)[0] 
-    hfs = [1,2,3] # [mF=0, mF=1, mF=-1]
-    fluo, fluo_v = np.zeros(len(frequences)), [[0]*len(vitesses)]*len(H0.E1S)
+    fluo = np.zeros(len(frequences))
+    fluo_v = np.zeros((len(vitesses),len(H0.E3S)))
     for i,delta in enumerate(frequences):
         for j,v in enumerate(vitesses):
             coef_Stark = H_Stark_sur_vB.multiplier(v*B/1000).H3S3P[:-4,12:]
@@ -64,9 +70,11 @@ def forme_de_raie(B,sigma,vo=0):
                 den = gamma3S - np.sum(BB*(1+BB/(gamma3P-BB)))
                 pop3S = num/den
                 pop3P = np.sum((CC-pop3S*BB)/(gamma3P-BB))
-                fluo_v[k][j] = (gamma3S*pop3S + 0.11834*gamma3P*pop3P)*coef_v                   
-        fluo[i] = np.sum([quad(interp1d(vitesses,fluo_v[k],kind='cubic'), \
+                fluo_v[j,k] = (gamma3S*pop3S + 0.11834*gamma3P*pop3P)*coef_v
+        fluo[i] = np.sum([quad(interp1d(vitesses,fluo_v[:,k],kind='cubic'), \
                                0.1,10.1)[0]/normalisation for k in hfs])
+    print 'Calcul fini pour B =',B,', sigma =',sigma,', v0 =',vo, \
+          ', en ',int(time.time()-debut),' s'
     return frequences,fluo*1000
     
 def coefv(v,sigma,vo):

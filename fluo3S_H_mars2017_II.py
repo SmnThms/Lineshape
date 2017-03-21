@@ -9,13 +9,11 @@ from __future__ import division
 import numpy as np
 from fluo3S_H_mars2017_I import *
 
-
 ##### STRUCTURE DU PROGRAMME #####
 # 1. Définition des bases et matrices de passage
 # 2. Définition des hamiltoniens
 # 3. Calcul de la forme de raie
 # 4. Ajustement, enregistrement, affichage
-
 
 ##### 2. Définition des hamiltoniens
 
@@ -42,16 +40,17 @@ class Hamiltonien:
         self.M3S3P = np.zeros((16,16))
         self.M3S3P[-4:,-4:] = self.M3S
         self.M3S3P[:-4,:-4] = self.M3P
-        self.LJF_vers_baseH0 = Passage('LJFmF',self.base,self.M1S.transpose(),self.M3S3P.transpose())     
+        self.LJF_vers_baseH0 = Passage('LJFmF',self.base,self.M1S.transpose(),
+                                       self.M3S3P.transpose())     
         
     def additionner(self,H_ajoute):
         if self.base is not H_ajoute.base:
             return False
-        return Hamiltonien(self.base,self.H1S + H_ajoute.H1S,self.H3S3P + H_ajoute.H3S3P)
+        return Hamiltonien(self.base,self.H1S + H_ajoute.H1S,
+                           self.H3S3P + H_ajoute.H3S3P)
         
     def multiplier(self,v):
         return Hamiltonien(self.base,self.H1S*v,self.H3S3P*v)
-        
         
 def H_HFS(): # dans la base LJFmF
     base = 'LJFmF'
@@ -75,7 +74,6 @@ def H_HFS(): # dans la base LJFmF
     H3S3P[:-4,:-4] = H3P
     return Hamiltonien(base,H1S,H3S3P)    
     
-    
 def H_Zeeman(B): # dans la base LmSmLmI
     base = 'LmSmLmI'
     mub = 1.399601126       # magnéton de Bohr en MHz/G
@@ -88,12 +86,14 @@ def H_Zeeman(B): # dans la base LmSmLmI
     g_1S = 2.00228377       # facteur de Landé (à vérifier)
     MJ_1S = 0.5*mub*B*g_1S  # c1ss
     diam_1S = -2*coef_diamagnetique*B*B
-    H1S = MJ_1S*np.diag([1,1,-1,-1]) + diam_1S*np.diag([1,1,1,1]) + MI*np.diag([1,-1,1,-1])
+    H1S = MJ_1S*np.diag([1,1,-1,-1]) + diam_1S*np.diag([1,1,1,1]) \
+          + MI*np.diag([1,-1,1,-1])
     # 3S
     g_3S = 2.0023152    
     MJ_3S = 0.5*mub*B*g_3S  # c3ss
     diam_3S = -138*coef_diamagnetique*B*B 
-    H3S = MJ_3S*np.diag([1,1,-1,-1]) + diam_3S*np.diag([1,1,1,1]) + MI*np.diag([1,-1,1,-1])
+    H3S = MJ_3S*np.diag([1,1,-1,-1]) + diam_3S*np.diag([1,1,1,1]) \
+          + MI*np.diag([1,-1,1,-1])
     # 3P
     g_3P = 2.0023152        
     MJ_3P = 0.5*mub*B*g_3P  # c3ps
@@ -106,14 +106,13 @@ def H_Zeeman(B): # dans la base LmSmLmI
     H3S3P[-4:,-4:] = H3S
     H3S3P[:-4,:-4] = H3P
     return Hamiltonien(base,H1S,H3S3P) 
-    
    
 def H_FS(): # dans la base LJmJmI
     base = 'LJmJmI'
     H1S = np.zeros((4,4)) # on n'en a pas besoin
     # Partie angulaire
-    # le champ électrique est perpendiculaire à l'axe de quantification
-    # on a deltami=0 et |deltamj|=1
+    # le champ électrique est perpendiculaire à l'axe de quantification, 
+    # et on a deltami=0 et |deltamj|=1
     H3S3P = np.zeros((16,16))
     H3S3P[12,0] = H3S3P[13,1] = -1/np.sqrt(6)
     H3S3P[14,2] = H3S3P[15,3] = -1/(3*np.sqrt(2))

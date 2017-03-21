@@ -9,18 +9,17 @@ from __future__ import division
 import numpy as np
 from scipy.misc import factorial
 
-
 ##### STRUCTURE DU PROGRAMME #####
 # 1. Définition des bases et matrices de passage
 # 2. Définition des hamiltoniens
 # 3. Calcul de la forme de raie
 # 4. Ajustement, enregistrement, affichage
 
-
 ##### 1. Définition des bases et matrices de passage
 
 class Niveau:
-    def __init__(self,n=False, S=False, L=False, I=False, J=False, F=False, mS=False, mL=False, mI=False, mJ=False, mF=False):
+    def __init__(self,n=False, S=False, L=False, I=False, J=False, F=False, 
+                 mS=False, mL=False, mI=False, mJ=False, mF=False):
         self.n, self.S, self.L, self.I, self.J, self.F = n, S, L, I, J, F
         self.mS, self.mL, self.mI, self.mJ, self.mF = mS, mL, mI, mJ, mF
 
@@ -84,8 +83,6 @@ def LJFmF():
     LJFmF.append(Niveau( n=3, L=0, J=1/2, F=1, mF=-1 ))
     return LJFmF
 
-
-
 class Passage:
     def __init__(self,base_depart,base_arrivee,M1S,M3S3P):
         self.base_depart, self.base_arrivee = base_depart, base_arrivee
@@ -96,7 +93,7 @@ def LSI_vers_LJI():
     for m,d in enumerate(LmSmLmI()): # départ
         for n,a in enumerate(LJmJmI()): # arrivée
             if d.L != a.L or d.mI != a.mI:
-                P[n,m] = 0 # Parce qu'on doit avoir les mêmes mI et L pour les deux bases
+                P[n,m] = 0 # Mêmes mI et L pour les deux bases
             else:
                 P[n,m] = clebsch(j1=d.L,m1=d.mL,j2=d.S,m2=d.mS,J=a.J,M=a.mJ)
     return Passage('LmSmLmI','LJmJmI',P[-4:,-4:],P)
@@ -106,7 +103,7 @@ def LJI_vers_LJF():
     for m,d in enumerate(LJmJmI()): # départ
         for n,a in enumerate(LJFmF()): # arrivée
             if d.L != a.L or d.J != a.J:
-                P[n,m] = 0 # Parce qu'on doit avoir les mêmes J et L pour les deux bases
+                P[n,m] = 0 # Mêmes J et L pour les deux bases
             else:
                 P[n,m] = clebsch(j1=d.J,m1=d.mJ,j2=d.I,m2=d.mI,J=a.F,M=a.mF)
     return Passage('LJmJmI','LJFmF',P[-4:,-4:],P)
@@ -117,7 +114,8 @@ def clebsch(j1,m1,j2,m2,J,M):
 def wigner3j(j1,j2,j3,m1,m2,m3):
     if m1+m2+m3!=0:
         return 0
-    if j1-m1!=np.floor(j1-m1) or j2-m2!=np.floor(j2-m2) or j3-m3!=np.floor(j3-m3):
+    if j1-m1!=np.floor(j1-m1) or j2-m2!=np.floor(j2-m2) \
+                              or j3-m3!=np.floor(j3-m3):
         return 0
     if j3>j1+j2 or j3<abs(j1-j2):
         return 0
@@ -131,5 +129,9 @@ def wigner3j(j1,j2,j3,m1,m2,m3):
     tvec = np.arange(tmin,tmax+1,1)
     wigner = 0
     for t in tvec:
-        wigner += (-1)**t / ( factorial(t) * factorial(t-t1) * factorial(t-t2) * factorial(t3-t) * factorial(t4-t) * factorial(t5-t) )
-    return wigner * (-1)**(j1-j2-m3) * np.sqrt( factorial(j1+j2-j3) * factorial(j1-j2+j3) * factorial(-j1+j2+j3) / factorial(j1+j2+j3+1) * factorial(j1+m1) * factorial(j1-m1) * factorial(j2+m2) * factorial(j2-m2) * factorial(j3+m3) * factorial(j3-m3) )
+        wigner += (-1)**t/( factorial(t) * factorial(t-t1) * factorial(t-t2) \
+                  * factorial(t3-t) * factorial(t4-t) * factorial(t5-t) )
+    return wigner * (-1)**(j1-j2-m3) * np.sqrt( factorial(j1+j2-j3) \
+           *factorial(j1-j2+j3)*factorial(-j1+j2+j3) / factorial(j1+j2+j3+1) \
+           *factorial(j1+m1)*factorial(j1-m1)*factorial(j2+m2) \
+           *factorial(j2-m2)*factorial(j3+m3)*factorial(j3-m3) )

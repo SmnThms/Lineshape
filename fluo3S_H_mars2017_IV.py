@@ -12,7 +12,6 @@ from scipy.optimize import curve_fit
 from matplotlib import pyplot as plt
 import datetime
 
-
 ##### STRUCTURE DU PROGRAMME #####
 # 1. Définition des bases et matrices de passage
 # 2. Définition des hamiltoniens
@@ -31,11 +30,12 @@ class raie():
         self.resonance = self.ajuster()[0]
         
     def ajuster(self):
-        parametres,erreur = curve_fit(lorentz,np.linspace(-5,5,1001),fluo_array)[0]
+        parametres,erreur = curve_fit(lorentz,self.frequences,self.fluo)
         return parametres
         
     def enregistrer(self):
-        nom = 'fluo3S_H_'+self.date+'_'+str(self.B)+'_'+str(self.sigma)+'_'+str(self.vo)+'.txt'   
+        nom = 'fluo3S_H_'+self.date+'_'+str(self.B)+'_'+str(self.sigma) \
+              +'_'+str(self.vo)+'.txt'   
         header = ''
         np.savetxt(nom,self.array,header=header,fmt='%10.2f')
         return self
@@ -43,16 +43,20 @@ class raie():
     def afficher(self):
         plt.plot()
         plt.xlabel('Fréquence (MHz)')
-        plt.title('B = '+str(self.B)+', sigma = '+str(self.sigma)+' et vo = '+str(self.vo))
+        plt.title('B = '+str(self.B)+', sigma = '+str(self.sigma) \
+                  +' et vo = '+str(self.vo))
         return self    
 
-def fit_B(liste_B,sigma,vo): # sens concaténation ?
+def fit_B(liste_B,sigma,vo):
     parametres = np.array([raie(B,sigma,vo).ajuster() for B in liste_B])
-    nom = '14-03_vo='+str(vo)+'_sigma='+str(sigma)+'.txt'
-    header = 'date : 14/03  \tvo = '+str(vo)+' km/s  \tsigma = '+str(sigma)+' km/s\
-    \nLorentzienne : S/(1+((x-x0)/(gamma/2))**2)\
+    array_B = np.array(liste_B).reshape(len(liste_B),1)
+    date = datetime.date.today().isoformat()    
+    nom = date+'_vo='+str(vo)+'_sigma='+str(sigma)+'.txt'
+    header = 'date:'+date+'\tvo='+str(vo)+' km/s\tsigma='+str(sigma)+' km/s \
+    \n Lorentzienne : S/(1+((x-x0)/(gamma/2))**2) \
     \n B (G) \t||\t x0 (MHz) \t||\t S (1/s) \t||\t gamma (MHz)'
-    np.savetxt(nom,np.concatenate(liste_B,parametres),header=header,fmt='%10.6f')    
+    resultat = np.concatenate((array_B,parametres),1)
+    np.savetxt(nom,resultat,header=header,fmt='%10.6f')    
     
 def lorentz(x,x0,S,gamma):
     return S/(1+((x-x0)/(gamma/2))**2)
