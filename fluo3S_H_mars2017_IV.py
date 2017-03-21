@@ -49,15 +49,19 @@ class raie():
 
 def fit_B(liste_B,sigma,vo):
     parametres = np.array([raie(B,sigma,vo).ajuster() for B in liste_B])
-    array_B = np.array(liste_B).reshape(len(liste_B),1)
-    date = datetime.date.today().isoformat()    
-    nom = date+'_vo='+str(vo)+'_sigma='+str(sigma)+'_nb_B=' \
-          +str(len(liste_B))+'.txt'
-    header = 'date:'+date+'\tvo='+str(vo)+' km/s\tsigma='+str(sigma)+' km/s \
-    \n Lorentzienne : S/(1+((x-x0)/(gamma/2))**2) \
-    \n B (G) \t||\t x0 (MHz) \t||\t S (1/s) \t||\t gamma (MHz)'
-    resultat = np.concatenate((array_B,parametres),1)
-    np.savetxt(nom,resultat,header=header,fmt='%10.6f')    
+    if len(liste_B) is 1:
+        print 'x0 =',parametres[0][0]
+    else:
+        array_B = np.array(liste_B).reshape(len(liste_B),1)
+        date = datetime.date.today().isoformat()    
+        nom = date+'_vo='+str(vo)+'_sigma='+str(sigma)+'_nb_B=' \
+              +str(len(liste_B))+'.txt'
+        header = 'date:'+date+'\tvo='+str(vo)+' km/s\tsigma='+str(sigma)+' km/s \
+                 \n Lorentzienne : S/(1+((x-x0)/(gamma/2))**2) \
+                 \n B (G) \t||\t x0 (MHz) \t||\t S (1/s) \t||\t gamma (MHz)'
+        resultat = np.concatenate((array_B,parametres),1)
+        np.savetxt(nom,resultat,header=header,fmt='%10.6f') 
+        return resultat
     
 def lorentz(x,x0,S,gamma):
     return S/(1+((x-x0)/(gamma/2))**2)
