@@ -23,15 +23,14 @@ import time
 ##### 3. Calcul de la forme de raie
 
 c = 299792.458  # en km/s
-nu0 = 2922742937 # en Mhz
+nu0 = 2922742937 # en Mhz (pourrait tout aussi bien être 2922742900)
 
 def forme_de_raie(B,sigma,vo=0):
     debut = time.time()
-    if B < 30:
+    if B < 0.1:
         H0 = H_HFS() # On est dans la base 'LJFmF'
         H0.diagonalise()
         H0_B0 = H0
-        hfs = [1,3] # [mF=-1, mF=1]
     else:
         H0 = H_HFS().additionner(H_Zeeman(B).convert(LSI_vers_LJI()) \
                     .convert(LJI_vers_LJF()))
@@ -40,10 +39,19 @@ def forme_de_raie(B,sigma,vo=0):
                     .convert(LJI_vers_LJF())) 
         # B0=0.0015 > 0, pour une diagonalisation dans le même ordre que H0
         H0_B0.diagonalise()
-        hfs = [1,2,3] # [mF=0, mF=1, mF=-1]
+    if B > 30:
+        hfs = [1,2,3] # [mF=1, mF=0, mF=-1]
+    else:
+        hfs = [1,3] # [mF=1, mF=-1]
     H_Stark_sur_vB = H_FS().convert(LJI_vers_LJF()).convert(H0.LJF_vers_baseH0)
-    gamma3S = 1.004945452       # en MHz
-    gamma3P = 30.192            # en MHz
+    
+    gamma3S = 1.004945452                 # en MHz
+#    gamma3P = 30.192                      # en MHz
+    gamma3P_12 = 30.19175875              # en MHz
+    gamma3P_32 = 30.19165419              # en MHz
+    gamma3P = gamma3P_12*np.array([0,1,0,1,0,1,0,0,0,0,0,1]) \
+             +gamma3P_32*np.array([1,0,1,0,1,0,1,1,1,1,1,0])
+
     frequences = np.linspace(-5,5,1001)   # en MHz
     vitesses = np.linspace(0.1,10.1,101)  # en km/s (v doit être non nul)
     normalisation = quad(lambda x:coefv(x,sigma,vo),0.1,10.1)[0] 
@@ -69,8 +77,9 @@ def forme_de_raie(B,sigma,vo=0):
                 num = np.real(-1/A) - np.sum(CC*(1+BB/(gamma3P-BB)))
                 den = gamma3S - np.sum(BB*(1+BB/(gamma3P-BB)))
                 pop3S = num/den
-                pop3P = np.sum((CC-pop3S*BB)/(gamma3P-BB))
-                fluo_v[j,k] = (gamma3S*pop3S + 0.11834*gamma3P*pop3P)*coef_v
+                pop3P = (CC-pop3S*BB)/(gamma3P-BB)
+                fluo_v[j,k] = gamma3S*pop3S + 0.11834*np.dot(gamma3P,pop3P)
+                fluo_v[j,k] *= coef_v
         fluo[i] = np.sum([quad(interp1d(vitesses,fluo_v[:,k],kind='cubic'), \
                                0.1,10.1)[0]/normalisation for k in hfs])
     print 'Calcul fini pour B =',B,', sigma =',sigma,', v0 =',vo, \
