@@ -76,3 +76,18 @@ def test(M,fig=0):
             plt.figure(fig)
         plt.imshow(M, interpolation='nearest',cmap=plt.jet())
         plt.colorbar()
+        
+def diagramme_Zeeman(liste_B,types_niveaux,fig=1,text=False):
+    plt.figure(fig)    
+    for B in liste_B:  
+        
+        H0 = H_HFS().additionner(H_Zeeman(B).convert(LSI_vers_LJI()).convert(LJI_vers_LJF()))
+        H0.diagonalise()        
+        niveaux = getattr(H0,type_niveaux)
+        plt.plot(B*np.ones(len(niveaux)),niveaux,'o',color='b')
+#        plt.ylim(np.min(niveaux)*1.1,np.max(niveaux)*1.1)
+        if text:        
+            for niveau in niveaux:
+                plt.text(B,niveau,'  '+str(niveaux.tolist().count(niveau)))
+    plt.xlabel('B')
+    plt.ylabel('E')
