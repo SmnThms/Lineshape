@@ -23,4 +23,6 @@ Parmi les principales modifications, par rapport à fluo3S_H_fev2017 :
           IV. Traitement du résultat
 
 
-Le programme 'Recherche de la distribution de vitesse' réalise les courbes qui permettent d'étudier l'influence de v0 et sigma.
+Le programme '_Recherche de la distribution de vitesse_' réalise les courbes qui permettent d'étudier l'influence de v0 et sigma.
+
+Les programmes '_…\_avec\_D…_' calculent les matrices de changement de bases pour l'hydrogène et le deutérium en incluant les niveaux D.
