@@ -8,7 +8,6 @@ Created on Fri Mar 10 12:13:05 2017
 from __future__ import division
 import numpy as np
 from scipy.misc import factorial
-from fluo3S_H_mars2017_IV import *
 
 ##### STRUCTURE DU PROGRAMME #####
 # 1. Définition des bases et matrices de passage
@@ -110,23 +109,23 @@ def LJmJmI():
     
 def LJFmF():    
     LJFmF = []
-    LJFmF.append(Niveau( n=3, L=1, J=3/2, F=2, mF=2  ))
-    LJFmF.append(Niveau( n=3, L=1, J=3/2, F=2, mF=1  ))
-    LJFmF.append(Niveau( n=3, L=1, J=3/2, F=1, mF=1  ))
-    LJFmF.append(Niveau( n=3, L=1, J=3/2, F=2, mF=0  ))
-    LJFmF.append(Niveau( n=3, L=1, J=3/2, F=1, mF=0  ))
-    LJFmF.append(Niveau( n=3, L=1, J=3/2, F=2, mF=-1 ))
-    LJFmF.append(Niveau( n=3, L=1, J=3/2, F=1, mF=-1 ))
-    LJFmF.append(Niveau( n=3, L=1, J=3/2, F=2, mF=-2 ))
-    LJFmF.append(Niveau( n=3, L=1, J=1/2, F=1, mF=1  ))
-    LJFmF.append(Niveau( n=3, L=1, J=1/2, F=1, mF=0  ))
-    LJFmF.append(Niveau( n=3, L=1, J=1/2, F=0, mF=0  ))
-    LJFmF.append(Niveau( n=3, L=1, J=1/2, F=1, mF=-1 ))
+    LJFmF.append(Niveau( n=3, L=1, J=3/2, F=2, mF=2,  I=1/2 ))
+    LJFmF.append(Niveau( n=3, L=1, J=3/2, F=2, mF=1,  I=1/2 ))
+    LJFmF.append(Niveau( n=3, L=1, J=3/2, F=1, mF=1,  I=1/2 ))
+    LJFmF.append(Niveau( n=3, L=1, J=3/2, F=2, mF=0,  I=1/2 ))
+    LJFmF.append(Niveau( n=3, L=1, J=3/2, F=1, mF=0,  I=1/2 ))
+    LJFmF.append(Niveau( n=3, L=1, J=3/2, F=2, mF=-1, I=1/2 ))
+    LJFmF.append(Niveau( n=3, L=1, J=3/2, F=1, mF=-1, I=1/2 ))
+    LJFmF.append(Niveau( n=3, L=1, J=3/2, F=2, mF=-2, I=1/2 ))
+    LJFmF.append(Niveau( n=3, L=1, J=1/2, F=1, mF=1,  I=1/2 ))
+    LJFmF.append(Niveau( n=3, L=1, J=1/2, F=1, mF=0,  I=1/2 ))
+    LJFmF.append(Niveau( n=3, L=1, J=1/2, F=0, mF=0,  I=1/2 ))
+    LJFmF.append(Niveau( n=3, L=1, J=1/2, F=1, mF=-1, I=1/2 ))
    
-    LJFmF.append(Niveau( n=3, L=0, J=1/2, F=1, mF=1  ))
-    LJFmF.append(Niveau( n=3, L=0, J=1/2, F=1, mF=0  ))
-    LJFmF.append(Niveau( n=3, L=0, J=1/2, F=0, mF=0  ))
-    LJFmF.append(Niveau( n=3, L=0, J=1/2, F=1, mF=-1 ))
+    LJFmF.append(Niveau( n=3, L=0, J=1/2, F=1, mF=1,  I=1/2 ))
+    LJFmF.append(Niveau( n=3, L=0, J=1/2, F=1, mF=0,  I=1/2 ))
+    LJFmF.append(Niveau( n=3, L=0, J=1/2, F=0, mF=0,  I=1/2 ))
+    LJFmF.append(Niveau( n=3, L=0, J=1/2, F=1, mF=-1, I=1/2 ))
 
 #    LJFmF.append(Niveau( n=3, L=2, J=3/2, F=2, mF=-2 ))
 #    LJFmF.append(Niveau( n=3, L=2, J=3/2, F=2, mF=-1 ))
@@ -151,9 +150,9 @@ def LJFmF():
     return LJFmF
 
 class Passage:
-    def __init__(self,base_depart,base_arrivee,M1S,M3S3P,M3):
+    def __init__(self,base_depart,base_arrivee,M1S,M3S3P):
         self.base_depart, self.base_arrivee = base_depart, base_arrivee
-        self.M1S, self.M3S3P, self.M3 = M1S, M3S3P, M3
+        self.M1S, self.M3S3P = M1S, M3S3P
         
 def LSI_vers_LJI():
     P = np.zeros((16,16))

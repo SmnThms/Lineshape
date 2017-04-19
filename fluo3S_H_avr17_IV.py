@@ -7,7 +7,7 @@ Created on Fri Mar 10 12:13:05 2017
 
 from __future__ import division
 import numpy as np
-from fluo3S_H_mars2017_III import *
+from fluo3S_H_avr17_III import *
 from scipy.optimize import curve_fit
 from matplotlib import pyplot as plt
 import datetime
@@ -80,10 +80,10 @@ def test(M,fig=0):
 def diagramme_Zeeman(liste_B=np.linspace(0,200,100),type_niveaux='E3S3P',fig=1,text=False):
     plt.figure(fig)    
     for B in liste_B:  
-        H0 = H_HFS().additionner(H_Zeeman(B).convert(LSI_vers_LJI()).convert(LJI_vers_LJF()))
-        H0.diagonalise()        
+        H0 = H_SHF().additionner(H_Zeeman(B).convert(LSI_vers_LJI()).convert(LJI_vers_LJF()))
+        H0.diagonaliser()        
         niveaux = getattr(H0,type_niveaux)
-        plt.plot(B*np.ones(len(niveaux)),niveaux,'o',color='b')
+        plt.plot(B*np.ones(len(niveaux)),niveaux,'o',color='g')
         if text:        
             for niveau in niveaux:
                 plt.text(B,niveau,'  '+str(niveaux.tolist().count(niveau)))

@@ -7,7 +7,7 @@ Created on Fri Mar 10 12:13:05 2017
 
 from __future__ import division
 import numpy as np
-from fluo3S_H_mars2017_I import *
+from fluo3S_H_avr17_I import *
 
 ##### STRUCTURE DU PROGRAMME #####
 # 1. Définition des bases et matrices de passage
@@ -54,6 +54,7 @@ class Hamiltonien:
         self.H1S = np.diag(self.E1S)
         self.E3S, self.M3S = np.linalg.eigh(self.H3S3P[-4:,-4:])
         self.E3P, self.M3P = np.linalg.eigh(self.H3S3P[:-4,:-4])
+        self.E3S3P = np.concatenate((self.E3S,self.E3P))
         self.H3S3P[-4:,-4:] = np.diag(self.E3S)
         self.H3S3P[:-4,:-4] = np.diag(self.E3P)
         self.M3S3P = np.zeros((16,16))
