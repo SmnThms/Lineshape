@@ -77,10 +77,10 @@ def forme_de_raie(B,sigma,vo=0):
           ', en ',int(time.time()-debut),' s'
     return frequences,fluo*1000
     
-def coefv(v,sigma,vo): #(Olander70, Arnoult thèse, Galtier thèse)
-    xd = 6.5e-6        # taille de la zone de détection/2 en km
-    zr = 35e-6         # longueur de Rayleigh en km
-    taue = 1e-6        # durée de vie en s                      #1/(2*np.pi) ?
+def coefv(v,sigma,vo):      #(Olander70, Arnoult thèse, Galtier thèse)
+    xd = 6.5e-6             # taille de la zone de détection/2 en km
+    zr = 35e-6              # longueur de Rayleigh en km
+    taue = 1e-6/(2*np.pi)   # durée de vie en s    
     z = v/(np.sqrt(2)*sigma)
     psi = (z*np.exp(-z**2)+np.sqrt(np.pi)/2.*(1+2*z**2)*erf(z)) \
           /(np.sqrt(2*np.pi)*z**2)
