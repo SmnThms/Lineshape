@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon May 22 10:27:38 2017
-
 @author: Simon
 """
 
@@ -18,7 +17,7 @@ import time
 
 N = len(LJmJmI())
 
-##### CONSTANTES #####
+##### VALEURS NUMERIQUES #####
 mub = 1.3996245042      # magnéton de Bohr en MHz/G        (CODATA14)
 me = 9.10938356e-31     # masse de l'électron en kg        (CODATA14)
 mN = 1.672621898e-27    # masse du proton en kg            (CODATA14)
@@ -27,44 +26,25 @@ a0 = 0.52917721067e-10  # rayon de Bohr en m               (CODATA14)
 h = 6.626070040e-34     # constante de Planck en J.s       (CODATA14)
 gN = 5.585694702        # facteur de Landé du noyau        (CODATA14)
 ge = 2.00231930436182   # facteur de Landé de l'électron   (CODATA14)
-gS_1S = 2.00228377      # facteur de Landé de l'électron   (Indelicato)
-gS_3S = 2.0023152       # facteur de Landé de l'électron   (Indelicato)
 c = 299792458           # vitesse de la lumière dans le vide en m/s
 alpha = 7.2973525664e-3 # constante de structure fine      (CODATA14)
-
-
-##### NIVEAUX D'ÉNERGIE #####
-# Structure fine en MHz (n,L,J):
-SF = {(1,0,1/2):1, (3,0,1/2):0, (3,1,1/2):-314.784, (3,1,3/2):2934.968}
 # Lamb shift en MHz (n,L) (Galtier thèse) :
 LS = {(1,0):8172.840, (3,0):311.404, (3,1):0}
 # Constante de couplage (n) :
 A_SHF = {1:1420.405751768, 3:52.6094446}
-# Facteur de Landé de l'électron
+# Facteur de Landé de l'électron (Indelicato)
 gS = {1:2.00228377, 3:2.0023152}
 # Largeur des niveaux (MHz) :
 gamma = {(1,0):0, (3,0):1.004945452, (3,1):30.192}
-branch_3P = 0.11834
-
-nu0 = 2922742937 # en Mhz (pourrait tout aussi bien être 2922742900)    
-
-#A1S = 1420.405751768    # Écart hyperfin en MHz en champ nul (Hellwig70)
-# A3S = A1S/3**3        # Sans correction de Breit : *1/n^3
-#A3S = 52.6094446        # Avec correction de Breit (Galtier thèse) 
-#gamma3S = 1.004945452                    # en MHz
-#gamma3P = 30.192                         # en MHz
-#gamma3P_12 = 30.19175875                 # en MHz
-#gamma3P_32 = 30.19165419                 # en MHz
-
         
-##### CALCUL DES 3 HAMILTONIENS #####
-def HH_SHF(): # en MHz (Hagel thèse, Brodsky67, Glass thèse) 
+##### HAMILTONIENS #####
+def HH_SHF(E0=0): # en MHz (Hagel thèse, Brodsky67, Glass thèse) 
     # base = 'LJFmF' 
     H = np.zeros((N,N))
     for n, niv1 in enumerate(LJFmF()):
         for m, niv2 in enumerate(LJFmF()):
             if n == m: # (I·J)
-                H[n,m] = E(niv1.n, niv1.L, niv1.J) \
+                H[n,m] = E(niv1.n, niv1.L, niv1.J) - E0 \
                   + (3/16)*A_SHF[niv1.n] \
                   *(niv1.F*(niv1.F+1)-niv1.J*(niv1.J+1)-niv1.I*(niv1.I+1)) \
                   /(niv1.J*(niv1.J+1)*(niv1.L+1/2))
@@ -142,15 +122,21 @@ def HH_2photons(rabi):#,E=[0]):
 def convert(H,P):
     return np.dot(P,np.dot(H,P.transpose()))
 
-
-##### CALCUL #####
-def matrice_densite(w=2922742937,B=190,v=3,rabi=1):
+##### POPULATIONS ET FLUORESCENCE #####
+def matrice_densite(w=0,B=180,v=3,rabi=0.01):
     # Résolution de [H,rho] + ((C_ij*rho_ij)) = 0
     H = np.zeros((N,N),dtype=complex)
     H += convert(HH_SHF(),LJF_vers_LJI()) \
       + convert(HH_Zeeman(B),LSI_vers_LJI()) \
       + HH_Stark(B)*v \
       + HH_2photons(rabi)
+      
+    for i,u in enumerate(LJFmF()):
+        if getattr(u,'n')==1 and getattr(u,'mF')==1:
+            E1S = HH_SHF(E0)[i,i]
+        if getattr(u,'n')==3 and getattr(u,'L')==0 and getattr(u,'mF')==1:
+            E3S = HH_SHF(E0)[i,i]
+    w += (E3S - E1S)*(1 + (v*1E3)**2/(2*c**2))
 
     C = np.zeros((N,N),dtype=complex)
     for i,a in enumerate(LJmJmI()):
@@ -200,7 +186,7 @@ def coefv(v,sigma,vo):      #(Olander70, Arnoult thèse, Galtier thèse)
 #    fluo_v = np.zeros(len(vitesses))
 #    for i,delta in enumerate(frequences):
 #        for j,v in enumerate(vitesses):
-#            w = E(3,0,1/2) - E(1,0,1/2) + v**2*nu0/(2*c**2)
+#            w = 'delta E 1S-3S avec LS' + v**2*nu0/(2*c**2)
 #            pop = np.diag(matrice_densite(w,B,v))[4:,4:]
 #            fluo_v[j] = gamma[(3,0)]*np.sum(pop[:4]) \
 #                        + branch_3P*gamma[(3,1)]*np.sum(pop[4:]) \
