@@ -8,8 +8,6 @@ from __future__ import division
 import numpy as np
 from bases_pivot_Gauss import *
 from matplotlib import pyplot as plt
-#from scipy.optimize import leastsq
-from scipy.optimize._lsq import lsq_linear
 from scipy.integrate import quad
 from scipy.interpolate import interp1d
 from scipy.special import erf
@@ -30,15 +28,15 @@ c = 299792458           # vitesse de la lumière dans le vide en m/s
 alpha = 7.2973525664e-3 # constante de structure fine      (CODATA14)
 # Lamb shift en MHz (n,L) (Galtier thèse) :
 LS = {(1,0):8172.840, (3,0):311.404, (3,1):0}
-# Constante de couplage (n) :
+# Constante de couplage en MHz (n) :
 A_SHF = {1:1420.405751768, 3:52.6094446}
-# Facteur de Landé de l'électron (Indelicato)
+# Facteur de Landé de l'électron (n) (Indelicato)
 gS = {1:2.00228377, 3:2.0023152}
-# Largeur des niveaux (MHz) :
+# Largeur des niveaux en MHz (n,L) :
 gamma = {(1,0):0, (3,0):1.004945452, (3,1):30.192}
         
 ##### HAMILTONIENS #####
-def HH_SHF(E0=0): # en MHz (Hagel thèse, Brodsky67, Glass thèse) 
+def H_SFHF(E0=0): # en MHz (Hagel thèse, Brodsky67, Glass thèse) 
     # base = 'LJFmF' 
     H = np.zeros((N,N))
     for n, niv1 in enumerate(LJFmF()):
@@ -69,7 +67,7 @@ def E(n,L,J): # Dirac + recul + Lamb Shift, pour Z=1, en MHz
     E += LS[(n,L)]
     return E
     
-def HH_Zeeman(B): # en MHz (Hagel thèse, Glass thèse)
+def H_Zeeman(B): # en MHz (Hagel thèse, Glass thèse)
     # base = 'LmSmLmI'
     H = np.zeros((N,N))
     for n, niv in enumerate(LmSmLmI()):
@@ -81,7 +79,7 @@ def diamagnetique(n,L,mL): # en MHz/G² (Delande thèse)
     r_perp_2 = n**2*(5*n**2+1-3*L*(L+1))*(L**2+L-1+mL**2)/((2*L-1)*(2*L+3))
     return r_perp_2 * qe**2*a0**2/(8*me*h) * 1e-14  # Hz/T² -> MHz/G²
 
-def HH_Stark(B): # en MHz/(km/s) (Hagel thèse, Glass thèse)
+def H_Stark(B): # en MHz/(km/s) (Hagel thèse, Glass thèse)
     #base = 'LJmJmI'
     H = np.zeros((N,N))
     for n, niv1 in enumerate(LJmJmI()):
@@ -111,41 +109,40 @@ def R(n1,L1,n2,L2):
     else:
         return 0
 
-def HH_2photons(rabi):#,E=[0]):
+def H_2photons(rabi):
     H = np.zeros((N,N),dtype=complex)       
     for i,a in enumerate(LJmJmI()):
         for j,d in enumerate(LJmJmI()):
             if a.n!=d.n and a.L==d.L and a.mJ==d.mJ and a.mI==d.mI:
-                H[i,j] = rabi#*np.exp(-1j*E[max(i,j)]*h*1e6)
+                H[i,j] = rabi
     return H
     
 def convert(H,P):
     return np.dot(P,np.dot(H,P.transpose()))
 
 ##### POPULATIONS ET FLUORESCENCE #####
-def matrice_densite(w=0,B=180,v=3,rabi=0.01):
-    # Résolution de [H,rho] + ((C_ij*rho_ij)) = 0
+def matrice_densite(f=0,B=180,v=3,rabi=0.01):
     H = np.zeros((N,N),dtype=complex)
-    H += convert(HH_SHF(),LJF_vers_LJI()) \
-      + convert(HH_Zeeman(B),LSI_vers_LJI()) \
-      + HH_Stark(B)*v \
-      + HH_2photons(rabi)
+    H += convert(H_SFHF(),LJF_vers_LJI()) \
+      + convert(H_Zeeman(B),LSI_vers_LJI()) \
+      + H_Stark(B)*v \
+      + H_2photons(rabi)
       
     for i,u in enumerate(LJFmF()):
         if getattr(u,'n')==1 and getattr(u,'mF')==1:
-            E1S = HH_SHF(E0)[i,i]
+            E1S = H_SFHF()[i,i]
         if getattr(u,'n')==3 and getattr(u,'L')==0 and getattr(u,'mF')==1:
-            E3S = HH_SHF(E0)[i,i]
-    w += (E3S - E1S)*(1 + (v*1E3)**2/(2*c**2))
+            E3S = H_SFHF()[i,i]
+    f += (E3S - E1S)*(1 + (v*1E3)**2/(2*c**2)) # avec v en km/s
 
     C = np.zeros((N,N),dtype=complex)
     for i,a in enumerate(LJmJmI()):
         for j,d in enumerate(LJmJmI()):
             C[i,j] = -1j/(4*np.pi)*(gamma[(a.n,a.L)] + gamma[(d.n,d.L)])
             if a.n==1 and d.n==3:
-                C[i,j] += w
+                C[i,j] += f
             if a.n==3 and d.n==1:
-                C[i,j] -= w
+                C[i,j] -= f
                  
     A = np.zeros((N**2,N**2),dtype=complex)
     B = np.zeros(N**2,dtype=complex)  
@@ -158,10 +155,10 @@ def matrice_densite(w=0,B=180,v=3,rabi=0.01):
             A_ij[i,j] += C[i,j]
             A[k,:] = A_ij.reshape((1,N**2))
             k += 1
-    for i in range(4):
+    for i in range(4): # si les niveaux 1S sont les 4 premiers de la base
         B[i*(N+1)] += -1j
 
-    X, residuals, rank, s = np.linalg.lstsq(A,B)
+    X = np.linalg.solve(A,B)
     return X.reshape((N,N))
 
 def coefv(v,sigma,vo):      #(Olander70, Arnoult thèse, Galtier thèse)
